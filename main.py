@@ -61,13 +61,21 @@ X = iris.data
 y = iris.target
 class_names = iris.target_names
 
+# plot iris dataset
+plt.figure()
+plt.style.use('seaborn-whitegrid')
+plt.scatter(X[:, 0], X[:, 1], c=y, cmap=plt.cm.Set1, edgecolor='k')
+plt.xlabel('Sepal length')
+plt.ylabel('Sepal width')
+plt.title('Iris dataset')
+plt.show()
+
 from sklearn.model_selection import train_test_split
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
 
 from sklearn.linear_model import LogisticRegression
 
-# Increase max iterations to avoid convergence warning
 logreg = LogisticRegression(multi_class='ovr', solver='liblinear')
 logreg.fit(X_train, y_train)
 # Predict for One Observation (image)
@@ -101,34 +109,28 @@ from sklearn.neighbors import KNeighborsClassifier
 k_range = range(1, 102, 10)
 
 # Loop through different values of k, with uniform and distance weights
-# and plot a confusion matrix for each
 for k in k_range:
     knn = KNeighborsClassifier(n_neighbors=k, weights='uniform')
     knn.fit(X_train, y_train)
     y_pred = knn.predict(X_test)
     score = knn.score(X_test, y_test)
-    cm = confusion_matrix(y_test, y_pred)
-    plt.figure(figsize=(9, 9))
-    sns.heatmap(cm, annot=True, fmt=".3f", linewidths=.5, square=True, cmap='Blues_r');
-    plt.ylabel('Actual label')
-    plt.xlabel('Predicted label')
-    all_sample_title = 'Accuracy Score: {0}'.format(score)
-    plt.title(all_sample_title, size=15)
-    plt.savefig('Confusion-Matrix-knn-k-' + str(k) + '.png')
-    print("Accuracy is ", metrics.accuracy_score(y_test, y_pred), "for K-Value:", k, "and uniform weights")
+    print("Accuracy is ", score, "for k-Value:", k)
+    if k == 41 or k == 71:
+        cm = confusion_matrix(y_test, y_pred)
+        print(cm)
+
+        plt.figure(figsize=(9, 9))
+        sns.heatmap(cm, annot=True, fmt=".3f", linewidths=.5, square=True, cmap='Blues_r');
+        plt.ylabel('Actual label')
+        plt.xlabel('Predicted label')
+        all_sample_title = 'Accuracy Score: {0}'.format(score)
+        plt.title(all_sample_title, size=15)
+        plt.suptitle('Uniform weight, k = ' + str(k), fontsize=15)
+        plt.savefig('Confusion-Matrix' + str(k) + '.png')
 
     knn = KNeighborsClassifier(n_neighbors=k, weights='distance')
     knn.fit(X_train, y_train)
-    y_pred = knn.predict(X_test)
     score = knn.score(X_test, y_test)
-    cm = confusion_matrix(y_test, y_pred)
-    plt.figure(figsize=(9, 9))
-    sns.heatmap(cm, annot=True, fmt=".3f", linewidths=.5, square=True, cmap='Blues_r');
-    plt.ylabel('Actual label')
-    plt.xlabel('Predicted label')
-    all_sample_title = 'Accuracy Score: {0}'.format(score)
-    plt.title(all_sample_title, size=15)
-    plt.savefig('Confusion-Matrix-knn-k-' + str(k) + '-distance.png')
-    print("Accuracy is ", metrics.accuracy_score(y_test, y_pred), "for K-Value:", k, "and distance weights")
+    print("Accuracy is ", score, "for K-Value:", k, "and distance weights")
 
 plt.show()
